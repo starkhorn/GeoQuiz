@@ -16,6 +16,7 @@ public class QuizActivity extends AppCompatActivity {
 
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
+    private static final int REQUEST_CODE_CHEAT = 0;
 
     private Button trueButton;
     private Button falseButton;
@@ -33,6 +34,7 @@ public class QuizActivity extends AppCompatActivity {
     };
 
     private int currentIndex = 0;
+    private boolean isCheater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 currentIndex = (currentIndex + 1) % questionBank.length;
+                isCheater = false;
                 updateQuestion();
             }
         };
@@ -77,6 +80,7 @@ public class QuizActivity extends AppCompatActivity {
                 int questionLength = questionBank.length;
 
                 currentIndex = ((currentIndex - 1) + questionLength) % questionLength;
+                isCheater = false;
                 updateQuestion();
             }
         });
@@ -88,7 +92,8 @@ public class QuizActivity extends AppCompatActivity {
                 // Start Cheat Activity
                 boolean answerIsTrue = questionBank[currentIndex].isAnswerTrue();
                 Intent intent = CheatActivity.newIntent(QuizActivity.this, answerIsTrue);
-                startActivity(intent);
+
+                startActivityForResult(intent, REQUEST_CODE_CHEAT);
             }
         });
 
@@ -102,11 +107,15 @@ public class QuizActivity extends AppCompatActivity {
     private void checkAnswer(boolean userPressedTrue) {
         boolean isAnswerTrue = questionBank[currentIndex].isAnswerTrue();
         int messageResId;
-        
-        if (userPressedTrue == isAnswerTrue) {
-            messageResId = R.string.correct_toast;
+
+        if (isCheater) {
+            messageResId = R.string.judgement_toast;
         } else {
-            messageResId = R.string.incorrect_toast;
+            if (userPressedTrue == isAnswerTrue) {
+                messageResId = R.string.correct_toast;
+            } else {
+                messageResId = R.string.incorrect_toast;
+            }
         }
 
         Toast.makeText(QuizActivity.this, messageResId, Toast.LENGTH_SHORT).show();
@@ -124,6 +133,23 @@ public class QuizActivity extends AppCompatActivity {
         Log.i(TAG, "onSaveInstanceState");
 
         savedInstanceState.putInt(KEY_INDEX, currentIndex);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            if (data == null) {
+                return;
+            }
+
+            isCheater = CheatActivity.wasAnswerShown(data);
+        }
     }
 
     @Override
