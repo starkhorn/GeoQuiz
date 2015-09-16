@@ -17,14 +17,14 @@ public class QuizActivity extends AppCompatActivity {
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
 
-    private Button mTrueButton;
-    private Button mFalseButton;
-    private ImageButton mNextButton;
-    private ImageButton mPreviousButton;
-    private Button mCheatButton;
-    private TextView mQuestionTextView;
+    private Button trueButton;
+    private Button falseButton;
+    private ImageButton nextButton;
+    private ImageButton previousButton;
+    private Button cheatButton;
+    private TextView questionTextView;
 
-    private Question[] mQuestionBank = new Question[] {
+    private Question[] questionBank = new Question[] {
             new Question(R.string.question_oceans, true),
             new Question(R.string.question_mideast, false),
             new Question(R.string.question_africa, false),
@@ -32,7 +32,7 @@ public class QuizActivity extends AppCompatActivity {
             new Question(R.string.question_asia, true)
     };
 
-    private int mCurrentIndex = 0;
+    private int currentIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,66 +40,67 @@ public class QuizActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate(Bundle) called");
         setContentView(R.layout.activity_quiz);
 
-        mTrueButton = (Button) findViewById(R.id.true_button);
-        mTrueButton.setOnClickListener(new View.OnClickListener() {
+        trueButton = (Button) findViewById(R.id.true_button);
+        trueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 checkAnswer(true);
             }
         });
 
-        mFalseButton = (Button) findViewById(R.id.false_button);
-        mFalseButton.setOnClickListener(new View.OnClickListener() {
+        falseButton = (Button) findViewById(R.id.false_button);
+        falseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 checkAnswer(false);
             }
         });
 
-        mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
-        mNextButton = (ImageButton) findViewById(R.id.next_button);
+        questionTextView = (TextView) findViewById(R.id.question_text_view);
+        nextButton = (ImageButton) findViewById(R.id.next_button);
 
         View.OnClickListener showNextQuestionOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+                currentIndex = (currentIndex + 1) % questionBank.length;
                 updateQuestion();
             }
         };
 
-        mQuestionTextView.setOnClickListener(showNextQuestionOnClick);
-        mNextButton.setOnClickListener(showNextQuestionOnClick);
+        questionTextView.setOnClickListener(showNextQuestionOnClick);
+        nextButton.setOnClickListener(showNextQuestionOnClick);
 
-        mPreviousButton = (ImageButton) findViewById(R.id.previous_button);
-        mPreviousButton.setOnClickListener(new View.OnClickListener() {
+        previousButton = (ImageButton) findViewById(R.id.previous_button);
+        previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int questionLength = mQuestionBank.length;
+                int questionLength = questionBank.length;
 
-                mCurrentIndex = ((mCurrentIndex - 1) + questionLength) % questionLength;
+                currentIndex = ((currentIndex - 1) + questionLength) % questionLength;
                 updateQuestion();
             }
         });
 
-        mCheatButton = (Button) findViewById(R.id.cheat_button);
-        mCheatButton.setOnClickListener(new View.OnClickListener() {
+        cheatButton = (Button) findViewById(R.id.cheat_button);
+        cheatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Start Cheat Activity
-                Intent intent = new Intent(QuizActivity.this, CheatActivity.class);
+                boolean answerIsTrue = questionBank[currentIndex].isAnswerTrue();
+                Intent intent = CheatActivity.newIntent(QuizActivity.this, answerIsTrue);
                 startActivity(intent);
             }
         });
 
         if (savedInstanceState != null) {
-            mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+            currentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
         }
 
         updateQuestion();
     }
 
     private void checkAnswer(boolean userPressedTrue) {
-        boolean isAnswerTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
+        boolean isAnswerTrue = questionBank[currentIndex].isAnswerTrue();
         int messageResId;
         
         if (userPressedTrue == isAnswerTrue) {
@@ -112,9 +113,9 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void updateQuestion() {
-        int question = mQuestionBank[mCurrentIndex].getTextResId();
+        int question = questionBank[currentIndex].getTextResId();
 
-        mQuestionTextView.setText(question);
+        questionTextView.setText(question);
     }
 
     @Override
@@ -122,7 +123,7 @@ public class QuizActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
         Log.i(TAG, "onSaveInstanceState");
 
-        savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
+        savedInstanceState.putInt(KEY_INDEX, currentIndex);
     }
 
     @Override
