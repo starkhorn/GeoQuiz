@@ -2,6 +2,7 @@ package com.example.starkhorn.geoquiz;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -18,6 +19,7 @@ public class CheatActivity extends AppCompatActivity {
     private boolean answerIsTrue;
     private Button showAnswerButton;
     private TextView answerTextView;
+    private TextView buildNumberTextView;
 
     public static Intent newIntent(Context packageContext, boolean answerIsTrue) {
         Intent intent = new Intent(packageContext, CheatActivity.class);
@@ -52,6 +54,9 @@ public class CheatActivity extends AppCompatActivity {
                 }
             }
         });
+
+        buildNumberTextView = (TextView) findViewById(R.id.buildNumberTextView);
+        buildNumberTextView.setText("API level " + Build.VERSION.SDK_INT);
     }
 
     private void setAnswerShownResult(boolean isAnswerShown) {
